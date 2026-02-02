@@ -1,1 +1,26 @@
-<p>regions works!</p>
+<div class="regions-container">
+  <h2>Comunidades Autónomas</h2>
+  <table class="regions-table">
+    <thead>
+    <tr>
+      <th>ID</th>
+      <th>Nombre</th>
+    </tr>
+    </thead>
+    <tbody>
+      @for (region of regions; track region.id) {
+        <tr>
+          <td>{{ region.id }}</td>
+          <td>{{ region.name }}</td>
+        </tr>
+      } @empty {
+        <tr>
+          <td colspan="2">No hay comunidades autónomas disponibles</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+  @if (error) {
+    <p class="error-message">{{ error }}</p>
+  }
+</div>
