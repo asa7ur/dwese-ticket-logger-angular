@@ -5,14 +5,11 @@
   <nav class="navigation">
     <ul class="nav-links">
       <li><a routerLink="/">Inicio</a></li>
-      <li><a routerLink="/regions">Comunidades Autónomas (prueba sin login)</a></li>
-      @if (isLoggedIn) {
-        <li><a routerLink="/regions">Comunidades Autónomas</a></li>
-      }
       @if (!isLoggedIn) {
         <li><a routerLink="/login">Login</a></li>
       }
       @if (isLoggedIn) {
+        <li><a routerLink="/regions">Comunidades Autónomas</a></li>
         <li><a (click)="logout()">Logout</a></li>
       }
     </ul>
