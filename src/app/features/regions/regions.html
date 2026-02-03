@@ -1,25 +1,34 @@
 <div class="regions-container">
   <h2>Comunidades Autónomas</h2>
-  <table class="regions-table">
+  <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8">
+    <ng-container matColumnDef="id">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
+      <td mat-cell *matCellDef="let region">{{ region.id }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</th>
+      <td mat-cell *matCellDef="let region">{{ region.name }}</td>
+    </ng-container>
+
     <thead>
-    <tr>
-      <th>ID</th>
-      <th>Nombre</th>
-    </tr>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     </thead>
+
     <tbody>
-      @for (region of regions; track region.id) {
-        <tr>
-          <td>{{ region.id }}</td>
-          <td>{{ region.name }}</td>
-        </tr>
-      } @empty {
-        <tr>
-          <td colspan="2">No hay comunidades autónomas disponibles</td>
-        </tr>
-      }
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </tbody>
+
   </table>
+
+  <mat-paginator
+    [length]="totalElements"
+    [pageSize]="pageSize"
+    [pageSizeOptions]="[5, 10, 20]"
+    (page)="handlePageEvent($event)"
+    showFirstLastButtons>
+  </mat-paginator>
+
   @if (error) {
     <p class="error-message">{{ error }}</p>
   }
