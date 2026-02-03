@@ -26,7 +26,7 @@ export class RegionService {
     const params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString())
-      .set('sort', `$(sortColumn),$(sortDirection)`);
+      .set('sort', `${sortColumn},${sortDirection}`);
 
     // Realiza la solicitud GET al endpoint de regiones con el token en el encabezado.
     return this.http.get(`${environment.apiUrl}/regions`, {
