@@ -1,18 +1,20 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Router } from '@angular/router';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { environment } from '../../../environments/environment';
+import {Injectable} from '@angular/core';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {Router} from '@angular/router';
+import {BehaviorSubject, Observable} from 'rxjs';
+import {map} from 'rxjs/operators';
+import {environment} from '../../../environments/environment';
+import {configuration} from '../../config/configuration';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private token = new BehaviorSubject<string | null>(null);
+  private token = new BehaviorSubject<string | null>(localStorage.getItem(configuration.KEY_TOKEN));
 
   // BehaviorSubject almacena el token y permite a otros componentes reaccionar cuando cambia.
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient, private router: Router) {
+  }
 
   /**
    * Método para autenticar al usuario.
@@ -24,8 +26,8 @@ export class AuthService {
   login(username: string, password: string): Observable<{ token: string }> {
     return this.http.post<{ token: string }>(
       `${environment.apiUrl}/v1/authenticate`,
-      { username, password },
-      { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+      {username, password},
+      {headers: new HttpHeaders({'Content-Type': 'application/json'})}
     );
   }
 
@@ -34,6 +36,7 @@ export class AuthService {
    * @param token - Token recibido tras una autenticación exitosa.
    */
   setToken(token: string): void {
+    localStorage.setItem(configuration.KEY_TOKEN, token);
     this.token.next(token); // Actualiza el valor del token.
   }
 
@@ -42,7 +45,7 @@ export class AuthService {
    * @returns El token actual o null si no está definido.
    */
   getToken(): string | null {
-    return this.token.value;
+    return localStorage.getItem(configuration.KEY_TOKEN);
   }
 
   /**

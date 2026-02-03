@@ -25,8 +25,6 @@ export class Regions implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  regions: any[] = [];
-
   constructor(
     private regionService: RegionService,
     private router: Router) {
