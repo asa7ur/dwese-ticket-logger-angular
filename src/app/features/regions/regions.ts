@@ -18,7 +18,10 @@ export class Regions implements OnInit {
 
   ngOnInit() {
     this.regionService.fetchRegions().subscribe({
-      next: (res: any) => (this.regions = res),
+      next: (data: any) => {
+        this.regions = data.content;
+        console.log('Regiones cargadas:', this.regions);
+      },
       error: (err) => {
         if (err.status === 403) {
           this.router.navigate(['/forbidden']);
