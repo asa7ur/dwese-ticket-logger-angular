@@ -1,16 +1,24 @@
 <header class="main-header">
   <div class="logo">
-    <a href="/">Nombre Alumno</a>
+    <a routerLink="/">
+      @if (authService.userName$ | async; as name) {
+        {{ name }}
+      } @else {
+        Nombre Alumno
+      }
+    </a>
   </div>
   <nav class="navigation">
     <ul class="nav-links">
-      <li><a routerLink="/">Inicio</a></li>
-      @if (!isLoggedIn) {
+      <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Inicio</a></li>
+
+      @if (!(authService.isLoggedIn() | async)) {
         <li><a routerLink="/login">Login</a></li>
       }
-      @if (isLoggedIn) {
-        <li><a routerLink="/regions">Comunidades Autónomas</a></li>
-        <li><a (click)="logout()">Logout</a></li>
+
+      @if (authService.isLoggedIn() | async) {
+        <li><a routerLink="/regions" routerLinkActive="active">Comunidades Autónomas</a></li>
+        <li><a (click)="authService.logout()" style="cursor: pointer;">Logout</a></li>
       }
     </ul>
   </nav>
