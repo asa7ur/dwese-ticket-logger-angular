@@ -5,28 +5,16 @@ import {BehaviorSubject, Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {environment} from '../../../environments/environment';
 import {configuration} from '../../config/configuration';
+import {jwtDecode} from 'jwt-decode';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
   private token = new BehaviorSubject<string | null>(localStorage.getItem(configuration.KEY_TOKEN));
-  private userName = new BehaviorSubject<string | null>(this.getNameFromToken(localStorage.getItem(configuration.KEY_TOKEN)));
-  public userName$ = this.userName.asObservable();
 
   // BehaviorSubject almacena el token y permite a otros componentes reaccionar cuando cambia.
   constructor(private http: HttpClient, private router: Router) {
-  }
-
-  // Función auxiliar para decodificar el token y extraer el nombre
-  private getNameFromToken(token: string | null): string | null {
-    if (!token) return null;
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return `${payload.firstName} ${payload.lastName}`;
-    } catch (e) {
-      return null;
-    }
   }
 
   /**
@@ -51,7 +39,6 @@ export class AuthService {
   setToken(token: string): void {
     localStorage.setItem(configuration.KEY_TOKEN, token);
     this.token.next(token); // Actualiza el valor del token.
-    this.userName.next(this.getNameFromToken(token));
   }
 
   /**
@@ -78,7 +65,36 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem(configuration.KEY_TOKEN);
     this.token.next(null); // Limpia el token almacenado.
-    this.userName.next(null);
     this.router.navigate(['/']); // Redirige al usuario a la ruta raíz.
+  }
+
+  /**
+   * Decodifica el token y devuelve la información del usuario.
+   */
+  getUserDetails(): any {
+    const token = this.getToken();
+    if (token) {
+      try {
+        const decoded: any = jwtDecode(token);
+        return {
+          firstName: decoded.firstName, // Campo añadido en JwtUtil.java
+          lastName: decoded.lastName,   // Campo añadido en JwtUtil.java
+          username: decoded.sub,
+          roles: decoded.roles
+        };
+      } catch (error) {
+        console.error("Error decodificando el token", error);
+        return null;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Método de utilidad para obtener solo el nombre completo.
+   */
+  getFullName(): string {
+    const user = this.getUserDetails();
+    return user ? `${user.firstName} ${user.lastName}` : '';
   }
 }
