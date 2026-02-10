@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
+import {Component} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
-import {AuthService} from '../../core/services/auth';
+import {AuthService} from '../../core/services/auth.service';
 import {Router} from '@angular/router';
 
 @Component({
@@ -11,21 +11,22 @@ import {Router} from '@angular/router';
   styleUrl: './login.css',
 })
 export class Login {
-    username = '';
-    password = '';
-    error: string | null = null;
+  username = '';
+  password = '';
+  error: string | null = null;
 
-    constructor(private auth: AuthService, private router: Router){}
+  constructor(private auth: AuthService, private router: Router) {
+  }
 
   onSubmit() {
-      this.auth.login(this.username, this.password).subscribe({
-        next: (res) => {
-          this.auth.setToken(res.token);
-          this.router.navigate(['/regions']);
-        },
-        error: (err) => {
-          this.error = 'Usuario y contraseña inválido';
-        }
-      });
+    this.auth.login(this.username, this.password).subscribe({
+      next: (res) => {
+        this.auth.setToken(res.token);
+        this.router.navigate(['/regions']);
+      },
+      error: (err) => {
+        this.error = 'Usuario y contraseña inválido';
+      }
+    });
   }
 }

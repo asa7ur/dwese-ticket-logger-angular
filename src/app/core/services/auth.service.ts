@@ -1,10 +1,12 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Router} from '@angular/router';
-import {BehaviorSubject, Observable} from 'rxjs';
+import {BehaviorSubject, Observable, tap} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {environment} from '../../../environments/environment';
 import {configuration} from '../../config/configuration';
+import {NotificationService} from './notification.service';
+import {jwtDecode} from 'jwt-decode';
 
 @Injectable({
   providedIn: 'root',
@@ -15,7 +17,11 @@ export class AuthService {
   public userName$ = this.userName.asObservable();
 
   // BehaviorSubject almacena el token y permite a otros componentes reaccionar cuando cambia.
-  constructor(private http: HttpClient, private router: Router) {
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private notificationService: NotificationService
+  ) {
   }
 
   // Función auxiliar para decodificar el token y extraer el nombre
@@ -41,7 +47,14 @@ export class AuthService {
       `${environment.apiUrl}/v1/authenticate`,
       {username, password},
       {headers: new HttpHeaders({'Content-Type': 'application/json'})}
-    );
+    ).pipe(
+      tap(response => {
+        this.setToken(response.token);
+        console.log('Login exitosom conectando a WebSockets...')
+
+        this.notificationService.connect();
+      })
+    )
   }
 
   /**
@@ -79,6 +92,25 @@ export class AuthService {
     localStorage.removeItem(configuration.KEY_TOKEN);
     this.token.next(null); // Limpia el token almacenado.
     this.userName.next(null);
+    this.notificationService.disconnect();
     this.router.navigate(['/']); // Redirige al usuario a la ruta raíz.
   }
+
+  /**
+   * Extrae el nombre de usuario desde el token JWT.
+   * @returns Nombre de usuario o `null` si el token es inválido.
+   */
+  getUsername(): string | null {
+    const token = this.getToken();
+    if (!token) return null;
+
+    try {
+      const decodedToken: any = jwtDecode(token);
+      return decodedToken.sub || null; // `sub` es el campo estándar en JWT para el username.
+    } catch (error) {
+      console.error('❌ Error al decodificar el token:', error);
+      return null;
+    }
+  }
+
 }
